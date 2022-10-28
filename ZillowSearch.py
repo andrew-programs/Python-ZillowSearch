@@ -1,10 +1,12 @@
 from dataclasses import dataclass
-import requests
+import requests # Not std
 import json
+import csv
 
 @dataclass(frozen=True)
 class ZillowSearch():
-    def findAllHouseData(self, state: str, pages: int, headers: dict) -> list[dict]:
+    def gatherHouseData(self, state: str, pages: int, headers: dict, output: bool=False) -> list[dict]:
+        # NOTE : Add kwargs or args option to make calling the method easier.
         houseArray = []
         
         for page in range(pages):
@@ -12,26 +14,26 @@ class ZillowSearch():
             response = requests.get(url, headers=headers)
             houseArray.extend(json.loads(response.content)["cat1"]["searchResults"]["listResults"])
         
+        # NOTE : Example of practical kwarg or arg.
+        if output == True:
+            headerRow = ["Price", "Status Text", "Status Type", "Area", "Beds", "Baths", "State", "City", "Street", "Zipcode"]
+            
+            with open("./output/ZillowHouses.CSV", "w") as dataFile:
+                csvWriter = csv.writer(dataFile)
+                csvWriter.writerow(headerRow)
+                
+                for house in houseArray:
+                    csvWriter.writerow(["{:,}".format(house['unformattedPrice']), house['statusType'], house['statusType'], f"{house['area']} sqft", house['beds'], house['baths'], house['addressState'], house['addressCity'], house['addressStreet'], house['addressZipcode']])
+                
         return houseArray
     
     def findAllHousePrices(self, state: str=None) -> list[int]:
         raise NotImplementedError()
 
 def main(headers):
-    houseSearch = ZillowSearch(headers)
-    houseArray = houseSearch.findAllHouseData("Colorado", 2)
-
-    for house in houseArray:
-            print("--------------------------------------\n"
-                  f"Price : {house['price']}\n"
-                  f"Status Text : {house['statusText']}\n"
-                  f"Status Type : {house['statusType']}\n"
-                  f"Beds : {house['beds']}\n"
-                  f"Baths : {house['baths']}\n"
-                  f"State : {house['addressState']}\n"
-                  f"City : {house['addressCity']}\n"
-                  f"Street : {house['addressStreet']}\n"
-                  f"ZipCode : {house['addressZipcode']}")
+    houseSearch = ZillowSearch()
+    houseArray = houseSearch.gatherHouseData("Colorado", 5, headers, True)
+    print(houseArray)
 
 if __name__ == '__main__':
     with open("./json/headers.json", "r") as headersJSON:
