@@ -3,9 +3,9 @@ import requests # Not std
 import json
 import csv
 
-@dataclass(frozen=True)
 class ZillowSearch():
     def gatherHouseData(self, state: str, pages: int, headers: dict, output: bool=False) -> list[dict]:
+        """This method will gather data from Zillow and return a list of dictionaries"""
         # NOTE : Add kwargs or args option to make calling the method easier.
         houseArray = []
         
@@ -28,6 +28,7 @@ class ZillowSearch():
         return houseArray
     
     def findAllHousePrices(self, state: str=None) -> list[int]:
+        """Not implemented"""
         raise NotImplementedError()
 
 def main(headers):
