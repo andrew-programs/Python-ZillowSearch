@@ -31,6 +31,7 @@ class ZillowSearch():
         """Not implemented"""
         raise NotImplementedError()
 
+# main test function
 def main(headers):
     houseSearch = ZillowSearch()
     houseArray = houseSearch.gatherHouseData("Colorado", 5, headers, True)
